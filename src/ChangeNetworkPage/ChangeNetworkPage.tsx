@@ -57,8 +57,6 @@ export const ChangeNetworkPage = () => {
   }, [search]);
 
   const changeNetwork = useCallback(() => {
-    console.log(ethereumProvider);
-    console.log(network);
     if(ethereumProvider && network) {
       ethereumProvider.request({
         method: 'wallet_addEthereumChain',
