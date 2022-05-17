@@ -56,14 +56,28 @@ export const ChangeNetworkPage = () => {
     return logoSrc || DEFAULT_LOGO_SRC;
   }, [search]);
 
-  const changeNetwork = useCallback(() => {
+  const changeNetwork = useCallback(async () => {
     if(ethereumProvider && network) {
-      ethereumProvider.request({
-        method: 'wallet_addEthereumChain',
-        params: [network],
-      });
+      try {
+        await ethereumProvider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: network.chainId }],
+        });
+      } catch (switchError) {
+        if ((switchError as any).code === 4902) {
+          try {
+            await ethereumProvider.request({
+              method: 'wallet_addEthereumChain',
+              params: [network],
+            });
+          } catch (addError) {
+            setError((addError as any).message);
+          }
+        }
+        setError((switchError as any).message);
+      }
     }
-  }, [ethereumProvider, network]);
+  }, [ethereumProvider, network, setError]);
 
   const networkName = useMemo(() => network ? network.chainName : "Wait...", [network]);
 
